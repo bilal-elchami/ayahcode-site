@@ -2,42 +2,434 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ayah Code · رمز الآية</title>
-<meta name="description" content="Ayah Code is a word puzzle game: decode verses of the Holy Quran letter by letter, in Arabic.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ayah Code · رمز الآية · Quran verse puzzle</title>
+<meta name="description" content="Ayah Code is a calm puzzle game: every letter of a Quran verse hides behind a number. Find the letters and the ayah reveals itself, in Arabic, for every age.">
+<meta property="og:title" content="Ayah Code · رمز الآية">
+<meta property="og:description" content="Decode verses of the Holy Quran, letter by letter.">
+<meta property="og:image" content="https://ayahcode.com/icon-192.png">
+<meta name="theme-color" content="#0b4a34">
 <link rel="icon" href="favicon.png">
-<link rel="stylesheet" href="style.css">
+<style>
+@font-face{font-family:"Noto Naskh Arabic";src:url("NotoNaskhArabic.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"Amiri Quran";src:url("AmiriQuran.ttf") format("truetype");font-display:swap}
+:root{
+  --paper:#fbf4e6; --card:#fffdf8; --ink:#1c2320; --quiet:#5b655f; --line:#e3d9c4;
+  --emerald:#16a06a; --emerald-deep:#0b4a34; --emerald-night:#073626; --mint:#dcefe5;
+  --saffron:#f4a622; --saffron-deep:#c57a06; --gold:#d9a640; --rose:#e5577b; --heart:#c0392b; --lapis:#3a63c9; --turq:#1bb3a6;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --arabic:"Noto Naskh Arabic","Geeza Pro","Arabic Typesetting",serif;
+  --quran:"Amiri Quran","Noto Naskh Arabic",serif;
+  --r:22px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6}
+[dir=rtl] body, body[dir=rtl]{font-family:var(--arabic)}
+html[dir=rtl] body{font-family:var(--arabic);font-size:18px}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+h1,h2,h3{line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.8rem,3.6vw,2.6rem);font-weight:800;letter-spacing:-.01em}
+html[dir=rtl] h2{letter-spacing:0}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--saffron-deep)}
+html[dir=rtl] .eyebrow{letter-spacing:0;font-size:.95rem}
+.lead{color:var(--quiet);font-size:1.1rem;max-width:36em}
+
+/* star lattice */
+.lattice{background-color:var(--emerald-deep);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23d9a640' stroke-opacity='.16' stroke-width='1.2'%3E%3Cpath d='M32 10l6.4 15.6L54 32l-15.6 6.4L32 54l-6.4-15.6L10 32l15.6-6.4z'/%3E%3Crect x='17' y='17' width='30' height='30' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E");}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:20;background:rgba(7,54,38,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#f6efdc;padding-top:env(safe-area-inset-top)}
+.nav .wrap{display:flex;align-items:center;gap:14px;height:62px}
+.nav .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:1.08rem}
+.nav .brand img{width:34px;height:34px;border-radius:9px}
+.nav .links{margin-inline-start:auto;display:flex;align-items:center;gap:18px;font-size:.95rem}
+.nav .links a{text-decoration:none;opacity:.85}
+.nav .links a:hover{opacity:1}
+.lang{display:flex;border:1px solid rgba(246,239,220,.35);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;color:inherit;font:inherit;font-size:.85rem;padding:5px 10px;cursor:pointer}
+.lang button[aria-pressed=true]{background:var(--saffron);color:#2a1a00;font-weight:700}
+@media (max-width:720px){.nav .links a.hide-sm{display:none}}
+
+/* hero */
+.hero{color:#f8f1df;overflow:hidden;position:relative}
+.hero::after{content:"";position:absolute;inset:auto 0 -1px 0;height:90px;background:linear-gradient(to bottom,transparent,var(--paper))}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-block:72px 110px;position:relative;z-index:1}
+.hero h1{font-size:clamp(2.6rem,6vw,4.4rem);font-weight:850;letter-spacing:-.02em}
+html[dir=rtl] .hero h1{letter-spacing:0}
+.hero .ar-name{font-family:var(--quran);font-size:clamp(2rem,4.4vw,3rem);color:var(--gold);line-height:1.5;margin-top:4px}
+.hero p.tag{font-size:1.2rem;max-width:30em;margin:18px 0 0;color:#e6dcc4}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:16px;font-weight:700;text-decoration:none;border:0;font:inherit;font-weight:700;cursor:pointer;transition:transform .15s}
+.btn:active{transform:translateY(2px)}
+.btn-gold{background:var(--saffron);color:#2a1a00;box-shadow:0 5px 0 var(--saffron-deep)}
+.btn-ghost{background:rgba(255,255,255,.08);color:#f8f1df;border:1px solid rgba(248,241,223,.35)}
+.store-note{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.store{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:12px;background:rgba(0,0,0,.28);border:1px solid rgba(248,241,223,.18);font-size:.88rem;line-height:1.25}
+.store b{display:block;font-size:1rem}
+.store svg{width:22px;height:22px;flex:none}
+.phones{position:relative;height:560px}
+.phone{position:absolute;width:250px;border-radius:36px;padding:10px;background:#111;box-shadow:0 30px 60px rgba(0,0,0,.45),inset 0 0 0 2px #333}
+.phone img{border-radius:27px;width:100%}
+.phone.a{right:10px;top:0;transform:rotate(5deg);z-index:2}
+.phone.b{left:0;top:70px;transform:rotate(-6deg);opacity:.95}
+html[dir=rtl] .phone.a{right:auto;left:10px;transform:rotate(-5deg)}
+html[dir=rtl] .phone.b{left:auto;right:0;transform:rotate(6deg)}
+@media (max-width:880px){
+  .hero .wrap{grid-template-columns:1fr;padding-block:48px 90px}
+  .phones{height:430px;max-width:420px;margin:0 auto;width:100%}
+  .phone{width:200px}
+}
+
+/* sections */
+section{padding-block:80px}
+.center{text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+
+/* demo */
+.demo-card{margin-top:34px;width:100%;max-width:640px;background:var(--card);border:2px solid var(--gold);border-radius:28px;padding:22px 18px 18px;box-shadow:0 20px 50px rgba(120,90,20,.12)}
+.demo-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;direction:ltr}
+.hearts{display:flex;gap:4px}
+.hearts span{font-size:1.5rem;color:var(--heart);transition:transform .3s,opacity .3s}
+.hearts span.lost{opacity:.2;transform:scale(.8)}
+.surah{font-family:var(--arabic);color:var(--emerald-deep);font-size:1.15rem;display:flex;align-items:center;gap:10px}
+.surah::before,.surah::after{content:"✦";color:var(--gold);font-size:.8rem}
+.verse{direction:rtl;display:flex;flex-wrap:wrap;justify-content:center;gap:16px 22px;padding:18px 0 22px}
+.word{display:flex;gap:5px}
+.slot{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:none;border:0;padding:0;font:inherit;color:inherit}
+.slot .box{width:44px;height:52px;border-radius:10px;background:#f1ebdd;border-bottom:3px solid #2c2c2c;display:grid;place-items:center;font-family:var(--arabic);font-size:1.7rem;color:var(--ink);transition:background .2s,transform .2s}
+.slot.given .box{background:transparent;border-bottom-color:var(--line)}
+.slot.found .box{background:transparent;color:var(--emerald-deep);border-bottom-color:var(--emerald);animation:pop .35s}
+.slot.sel .box{outline:3px solid var(--emerald);outline-offset:-3px;background:#e4f3ea}
+.slot.peer .box{background:#eaf4ee}
+.slot .num{font-size:.85rem;color:var(--quiet);font-variant-numeric:tabular-nums;font-family:var(--sans)}
+.slot.found .num{color:var(--emerald)}
+@keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.keys{direction:rtl;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;background:#efe7d6;border-radius:18px;padding:10px}
+.key{height:54px;border-radius:12px;border:0;background:#fff;box-shadow:0 3px 0 #d4c8b0;font-family:var(--arabic);font-size:1.6rem;cursor:pointer;color:var(--ink);transition:transform .1s}
+.key:active{transform:translateY(2px);box-shadow:0 1px 0 #d4c8b0}
+.key.used{background:#d9eee2;color:var(--emerald-deep);box-shadow:0 3px 0 #a9d3bb}
+.key.miss{animation:shake .4s;background:#fde3e3}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.demo-msg{min-height:1.6em;margin-top:12px;color:var(--quiet);font-size:.95rem}
+.reveal{display:none;flex-direction:column;align-items:center;gap:8px;padding:10px 0 4px}
+.reveal.show{display:flex;animation:fade .6s}
+.reveal .q{font-family:var(--quran);font-size:clamp(2rem,6vw,2.8rem);color:var(--emerald-deep);direction:rtl;line-height:1.9}
+.reveal .ref{color:var(--quiet)}
+.reveal .stars{color:var(--gold);font-size:1.8rem;letter-spacing:6px}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.btn-green{background:var(--emerald);color:#fff;box-shadow:0 5px 0 #0c7049}
+
+/* features */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:8px}
+.feat .ic{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;color:#fff;font-size:1.5rem;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+.feat h3{font-size:1.15rem;margin-top:6px}
+.feat p{margin:0;color:var(--quiet);font-size:.98rem}
+@media (max-width:880px){.features{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.features{grid-template-columns:1fr}}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px;counter-reset:s}
+.step{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.step .shot{width:220px;border-radius:30px;padding:8px;background:#111;box-shadow:0 18px 40px rgba(0,0,0,.2)}
+.step .shot img{border-radius:23px}
+.step .n{counter-increment:s;width:36px;height:36px;border-radius:50%;background:var(--emerald-deep);color:var(--gold);display:grid;place-items:center;font-weight:800}
+.step .n::before{content:counter(s)}
+.step h3{font-size:1.15rem}
+.step p{margin:0;color:var(--quiet);max-width:22em}
+@media (max-width:820px){.steps{grid-template-columns:1fr;gap:48px}}
+
+/* everyone band */
+.band{color:#f8f1df;border-radius:32px;padding:48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.band .lead{color:#e3d8bf}
+.band ul{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
+.band li{display:flex;gap:12px;align-items:flex-start}
+.band li::before{content:"✦";color:var(--gold);flex:none;margin-top:1px}
+.band .shot{max-width:260px;margin:0 auto;border-radius:30px;padding:8px;background:#111;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.band .shot img{border-radius:23px}
+@media (max-width:820px){.band{grid-template-columns:1fr;padding:32px 22px}}
+
+/* gallery */
+.gallery{display:flex;gap:18px;overflow-x:auto;padding:30px 4px 16px;scroll-snap-type:x mandatory;margin-top:10px}
+.gallery figure{margin:0;flex:none;width:210px;scroll-snap-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.gallery .shot{border-radius:28px;padding:7px;background:#111;box-shadow:0 14px 30px rgba(0,0,0,.18)}
+.gallery .shot img{border-radius:22px}
+.gallery figcaption{font-size:.92rem;color:var(--quiet);text-align:center}
+
+/* faq */
+.faq{max-width:760px;margin:36px auto 0;display:flex;flex-direction:column;gap:12px}
+details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--emerald);font-size:1.3rem;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin:10px 0 0;color:var(--quiet)}
+
+/* beta */
+.beta{text-align:center;color:#f8f1df;border-radius:32px;padding:56px 24px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.beta .lead{color:#e3d8bf;margin:0 auto}
+.mail{font-family:ui-monospace,Menlo,Consolas,monospace;background:rgba(0,0,0,.3);padding:6px 12px;border-radius:10px;user-select:all;direction:ltr}
+
+footer{padding-block:36px 48px;color:var(--quiet);font-size:.92rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center}
+footer .brand{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--ink)}
+footer img{width:28px;height:28px;border-radius:7px}
+footer nav{display:flex;gap:18px;margin-inline-start:auto}
+
+:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <a href="./" class="brand">Ayah Code</a>
-  <nav><a href="privacy.html">Privacy</a><a href="#contact">Contact</a></nav>
-</div></header>
 
-<main class="wrap">
-  <div class="hero">
-    <img src="icon-192.png" alt="Ayah Code app icon">
-    <h1>Ayah Code</h1>
-    <div class="ar">رمز الآية</div>
-    <p>A calm puzzle game for every age. Each letter of a Quran verse is hidden behind a number. Find the letters, and the ayah reveals itself, in Arabic, exactly as revealed.</p>
-    <span class="badge">Coming soon on Google Play and the App Store</span>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="icon-192.png" alt=""><span>Ayah Code</span></a>
+    <div class="links">
+      <a href="#play" class="hide-sm" data-t="navTry">Try it</a>
+      <a href="#features" class="hide-sm" data-t="navFeatures">Features</a>
+      <a href="#faq" class="hide-sm" data-t="navFaq">FAQ</a>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="fr">FR</button>
+        <button type="button" data-lang="ar">عربي</button>
+      </div>
+    </div>
   </div>
+</header>
 
-  <div class="cards">
-    <div class="card"><h2>Decode, letter by letter</h2><p>Every number stands for one Arabic letter. Each letter you find fills in across the whole verse.</p></div>
-    <div class="card"><h2>Made for every reader</h2><p>Large letters, simple controls and gentle hints, so grandparents and grandchildren can play alike.</p></div>
-    <div class="card"><h2>A journey through the Quran</h2><p>Play verse after verse, keep a daily streak with the Ayah of the day, and work toward completing the whole Quran.</p></div>
+<div class="hero lattice" id="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow" style="color:var(--gold)" data-t="heroEyebrow">A Quran verse puzzle</div>
+      <h1>Ayah Code</h1>
+      <div class="ar-name" lang="ar">رمز الآية</div>
+      <p class="tag" data-t="heroTag">Every letter of a verse hides behind a number. Find the letters one by one, and the ayah reveals itself, in Arabic, exactly as revealed.</p>
+      <div class="cta">
+        <a class="btn btn-gold" href="#play" data-t="heroCta">Try a verse now</a>
+        <a class="btn btn-ghost" href="#beta" data-t="heroBeta">Become a tester</a>
+      </div>
+      <div class="store-note">
+        <div class="store"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#34a853" d="M3.6 2.3 13.4 12l-9.8 9.7c-.4-.2-.6-.6-.6-1.1V3.4c0-.5.2-.9.6-1.1z"/><path fill="#fbbc04" d="m16.8 15.4-3.4-3.4 3.4-3.4 3.8 2.2c1 .6 1 1.8 0 2.4z"/><path fill="#4285f4" d="M13.4 12 3.6 2.3c.3-.2.8-.2 1.2 0l12 6.3z"/><path fill="#ea4335" d="m13.4 12 3.4 3.4-12 6.3c-.4.2-.9.2-1.2 0z"/></svg><span><span data-t="soonPlay">Coming soon</span><b>Google Play</b></span></div>
+        <div class="store"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f8f1df" d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 6.9 1.2 9.2.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 3-.7s1.8.7 3 .7c1.2 0 2-1.1 2.8-2.3.9-1.3 1.2-2.5 1.3-2.6-.1 0-2.4-.9-2.4-3.6zM14.1 5.6c.6-.8 1-1.8.9-2.8-.9 0-2 .6-2.6 1.3-.6.7-1.1 1.7-.9 2.7 1 .1 2-.5 2.6-1.2z"/></svg><span><span data-t="soonApple">Coming soon</span><b>App Store</b></span></div>
+      </div>
+    </div>
+    <div class="phones" aria-hidden="true">
+      <div class="phone b"><img src="img/shot-score.webp" alt=""></div>
+      <div class="phone a"><img src="img/shot-puzzle.webp" alt=""></div>
+    </div>
   </div>
+</div>
 
-  <div class="ar-block ar" lang="ar">
-    رمز الآية لعبة ألغاز هادئة: كل حرف من حروف الآية مخفيّ خلف رقم. اكتشف الحروف لتظهر الآية كاملة بالعربية كما أُنزلت. حروف كبيرة وتلميحات لطيفة تناسب جميع الأعمار.
-  </div>
+<main>
+  <section id="play">
+    <div class="wrap center">
+      <div class="eyebrow" data-t="demoEyebrow">Try it here</div>
+      <h2 data-t="demoTitle">Decode your first ayah</h2>
+      <p class="lead" data-t="demoLead">Tap an empty box, then the letter you think it hides. A right letter fills every box with the same number. You have three hearts.</p>
+
+      <div class="demo-card">
+        <div class="demo-top">
+          <div class="hearts" id="hearts"><span>♥</span><span>♥</span><span>♥</span></div>
+          <div class="surah" lang="ar">الإخلاص</div>
+        </div>
+        <div class="verse" id="verse"></div>
+        <div class="keys" id="keys"></div>
+        <div class="demo-msg" id="msg" aria-live="polite"></div>
+        <div class="reveal" id="reveal">
+          <div class="stars">★★★</div>
+          <div class="q" lang="ar">قُلْ هُوَ ٱللَّهُ أَحَدٌ</div>
+          <div class="ref" data-t="demoRef">Surah Al-Ikhlas, verse 1</div>
+          <button class="btn btn-green" id="again" type="button" data-t="demoAgain">Play again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" style="padding-top:20px">
+    <div class="wrap">
+      <div class="center">
+        <div class="eyebrow" data-t="featEyebrow">Why players love it</div>
+        <h2 data-t="featTitle">A game that brings you closer to the Quran</h2>
+      </div>
+      <div class="features">
+        <div class="feat"><div class="ic" style="background:var(--emerald)">ع</div><h3 data-t="f1t">Real Quran text</h3><p data-t="f1p">Every verse comes from the verified Tanzil Uthmani text and is never translated. Read it in full when you solve it.</p></div>
+        <div class="feat"><div class="ic" style="background:var(--lapis)">✦</div><h3 data-t="f2t">The whole Quran</h3><p data-t="f2p">Start with famous verses, then travel surah by surah through 471 packs until you complete a khatm.</p></div>
+        <div class="feat"><div class="ic" style="background:var(--saffron)">☀</div><h3 data-t="f3t">Ayah of the day</h3><p data-t="f3p">A new verse every day with double points, daily goals and a streak that keeps you coming back.</p></div>
+        <div class="feat"><div class="ic" style="background:var(--turq)">⌕</div><h3 data-t="f4t">Gentle help</h3><p data-t="f4p">Hints reveal one box, the Letter Lens shows where a letter repeats. Easy mode greys out the letters you already found.</p></div>
+        <div class="feat"><div class="ic" style="background:var(--rose)">♥</div><h3 data-t="f5t">Four challenge levels</h3><p data-t="f5p">From Gentle, with many letters shown, to Master, with none. Harder levels earn more stars and points.</p></div>
+        <div class="feat"><div class="ic" style="background:var(--emerald-deep)">☾</div><h3 data-t="f6t">Respectful by design</h3><p data-t="f6p">Ads never appear on a verse, only family-safe ads are allowed, and one purchase removes them for good. Works offline.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:20px">
+    <div class="wrap">
+      <div class="center">
+        <div class="eyebrow" data-t="howEyebrow">How it works</div>
+        <h2 data-t="howTitle">Three steps to every verse</h2>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="shot"><img src="img/shot-puzzle.webp" alt="" loading="lazy"></div><div class="n"></div><h3 data-t="s1t">Read the numbers</h3><p data-t="s1p">Each number is one Arabic letter. The same number is always the same letter in that verse.</p></div>
+        <div class="step"><div class="shot"><img src="img/shot-hint.webp" alt="" loading="lazy"></div><div class="n"></div><h3 data-t="s2t">Find the letters</h3><p data-t="s2p">Guess with the alphabetical keyboard. Each right letter fills in across the whole verse.</p></div>
+        <div class="step"><div class="shot"><img src="img/shot-score.webp" alt="" loading="lazy"></div><div class="n"></div><h3 data-t="s3t">Reveal the ayah</h3><p data-t="s3p">The full verse appears in mushaf script, with your stars, score and streak.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:20px">
+    <div class="wrap">
+      <div class="band lattice">
+        <div>
+          <div class="eyebrow" style="color:var(--gold)" data-t="allEyebrow">For every generation</div>
+          <h2 style="margin-top:8px" data-t="allTitle">Easy for grandparents, fun for grandchildren</h2>
+          <p class="lead" style="margin-top:14px" data-t="allLead">Ayah Code was playtested with older players from the start.</p>
+          <ul>
+            <li data-t="all1">Large letters and text size up to extra large</li>
+            <li data-t="all2">Big keys and whole cards you can tap, with clear OK buttons</li>
+            <li data-t="all3">Simple letter forms: type ا for every hamza if you like</li>
+            <li data-t="all4">Interface in Arabic, English, French, Malay, Indonesian and Turkish</li>
+          </ul>
+        </div>
+        <div class="shot"><img src="img/shot-large.webp" alt="" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:10px">
+    <div class="wrap">
+      <div class="center">
+        <div class="eyebrow" data-t="galEyebrow">Inside the app</div>
+        <h2 data-t="galTitle">Take a look</h2>
+      </div>
+      <div class="gallery">
+        <figure><div class="shot"><img src="img/shot-puzzle.webp" alt="" loading="lazy"></div><figcaption data-t="g1">A verse to decode</figcaption></figure>
+        <figure><div class="shot"><img src="img/shot-lens.webp" alt="" loading="lazy"></div><figcaption data-t="g2">The Letter Lens</figcaption></figure>
+        <figure><div class="shot"><img src="img/shot-heart.webp" alt="" loading="lazy"></div><figcaption data-t="g3">A wrong letter costs a heart</figcaption></figure>
+        <figure><div class="shot"><img src="img/shot-journey.webp" alt="" loading="lazy"></div><figcaption data-t="g4">The Quran journey</figcaption></figure>
+        <figure><div class="shot"><img src="img/shot-score.webp" alt="" loading="lazy"></div><figcaption data-t="g5">Stars and score</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="padding-top:20px">
+    <div class="wrap">
+      <div class="center">
+        <div class="eyebrow" data-t="faqEyebrow">Questions</div>
+        <h2 data-t="faqTitle">Good to know</h2>
+      </div>
+      <div class="faq">
+        <details><summary data-t="q1">Is the Quran text accurate?</summary><p data-t="a1">Yes. The verses come from Tanzil, a widely used verified source, and reviewed by people who know the Quran well. The text is always Arabic and never altered; only the letters are hidden for the game.</p></details>
+        <details><summary data-t="q2">Is it free?</summary><p data-t="a2">Yes. The game is free with ads between puzzles. Ads are never shown on a verse. A single "Remove ads" purchase turns them off forever.</p></details>
+        <details><summary data-t="q3">Do I need to read Arabic well?</summary><p data-t="a3">Knowing the Arabic letters is enough. Start on Gentle, where many letters are already shown, and use hints when you are stuck.</p></details>
+        <details><summary data-t="q4">Does it work without internet?</summary><p data-t="a4">Yes. All verses are inside the app. Only ads need a connection.</p></details>
+        <details><summary data-t="q5">Do you collect my data?</summary><p data-t="a5">There is no account. Your progress stays on your phone. Ads are served by Google AdMob, as explained in our privacy policy.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="beta" style="padding-top:20px">
+    <div class="wrap">
+      <div class="beta lattice">
+        <div class="eyebrow" style="color:var(--gold)" data-t="betaEyebrow">Early access</div>
+        <h2 data-t="betaTitle">Be one of the first players</h2>
+        <p class="lead" data-t="betaLead">We are looking for testers on Android before the launch. Send us the Gmail address you use on Google Play and we will invite you.</p>
+        <span class="mail">support@ayahcode.com</span>
+        <a class="btn btn-gold" href="mailto:support@ayahcode.com?subject=Ayah%20Code%20tester" data-t="betaBtn">Email us</a>
+      </div>
+    </div>
+  </section>
 </main>
 
-<footer id="contact"><div class="wrap">
-  <span>Contact: <a href="mailto:support@ayahcode.com">support@ayahcode.com</a></span>
-  <a href="privacy.html">Privacy policy</a>
-  <span>© 2026 Ayah Code</span>
-</div></footer>
+<footer>
+  <div class="wrap">
+    <span class="brand"><img src="icon-192.png" alt="">Ayah Code</span>
+    <span>© 2026</span>
+    <nav><a href="privacy.html" data-t="privacy">Privacy policy</a><a href="mailto:support@ayahcode.com" data-t="contact">Contact</a></nav>
+  </div>
+</footer>
+
+<script>
+(function(){
+var T={
+en:{},
+fr:{navTry:"Essayer",navFeatures:"Fonctionnalités",navFaq:"FAQ",heroEyebrow:"Un jeu d'énigmes sur les versets du Coran",heroTag:"Chaque lettre d'un verset se cache derrière un chiffre. Trouvez les lettres une à une et l'ayah se révèle, en arabe, telle qu'elle a été révélée.",heroCta:"Essayer un verset",heroBeta:"Devenir testeur",soonPlay:"Bientôt sur",soonApple:"Bientôt sur",
+demoEyebrow:"Essayez ici",demoTitle:"Déchiffrez votre première ayah",demoLead:"Touchez une case vide, puis la lettre qu'elle cache selon vous. Une bonne lettre remplit toutes les cases du même chiffre. Vous avez trois cœurs.",demoRef:"Sourate Al-Ikhlas, verset 1",demoAgain:"Rejouer",
+featEyebrow:"Pourquoi on l'aime",featTitle:"Un jeu qui rapproche du Coran",f1t:"Le vrai texte du Coran",f1p:"Chaque verset provient du texte uthmani vérifié de Tanzil et n'est jamais traduit. Lisez-le en entier une fois résolu.",f2t:"Tout le Coran",f2p:"Commencez par des versets célèbres, puis parcourez les sourates à travers 471 étapes jusqu'à la khatm.",f3t:"L'ayah du jour",f3p:"Un nouveau verset chaque jour avec points doublés, objectifs quotidiens et une série qui donne envie de revenir.",f4t:"Une aide douce",f4p:"Les indices révèlent une case, la Loupe montre où une lettre se répète. Le mode Facile grise les lettres déjà trouvées.",f5t:"Quatre niveaux de défi",f5p:"Du niveau Doux, avec beaucoup de lettres affichées, au niveau Maître, sans aucune. Plus c'est difficile, plus on gagne.",f6t:"Respectueux par nature",f6p:"Jamais de publicité sur un verset, uniquement des publicités tout public, et un seul achat les supprime pour toujours. Fonctionne hors ligne.",
+howEyebrow:"Comment ça marche",howTitle:"Trois étapes pour chaque verset",s1t:"Lisez les chiffres",s1p:"Chaque chiffre est une lettre arabe. Dans un même verset, un chiffre correspond toujours à la même lettre.",s2t:"Trouvez les lettres",s2p:"Devinez avec le clavier alphabétique. Chaque bonne lettre se place dans tout le verset.",s3t:"Révélez l'ayah",s3p:"Le verset complet apparaît en écriture du mushaf, avec vos étoiles, votre score et votre série.",
+allEyebrow:"Pour toutes les générations",allTitle:"Facile pour les grands-parents, amusant pour les petits-enfants",allLead:"Ayah Code a été testé avec des joueurs âgés dès le début.",all1:"Grandes lettres et taille de texte jusqu'à très grand",all2:"Grandes touches, cartes entièrement cliquables et boutons OK clairs",all3:"Formes simples : tapez ا pour toutes les hamzas si vous voulez",all4:"Interface en arabe, anglais, français, malais, indonésien et turc",
+galEyebrow:"Dans l'application",galTitle:"Aperçu",g1:"Un verset à déchiffrer",g2:"La Loupe",g3:"Une mauvaise lettre coûte un cœur",g4:"Le voyage dans le Coran",g5:"Étoiles et score",
+faqEyebrow:"Questions",faqTitle:"Bon à savoir",q1:"Le texte du Coran est-il exact ?",a1:"Oui. Les versets proviennent de Tanzil, une source vérifiée et largement utilisée, et sont relus par des personnes qui connaissent bien le Coran. Le texte est toujours en arabe et jamais modifié ; seules les lettres sont cachées pour le jeu.",q2:"Est-ce gratuit ?",a2:"Oui. Le jeu est gratuit avec des publicités entre les énigmes, jamais sur un verset. Un achat unique « Supprimer les publicités » les retire pour toujours.",q3:"Faut-il bien lire l'arabe ?",a3:"Connaître les lettres arabes suffit. Commencez au niveau Doux, où beaucoup de lettres sont affichées, et utilisez les indices.",q4:"Fonctionne-t-il sans internet ?",a4:"Oui. Tous les versets sont dans l'application. Seules les publicités ont besoin d'une connexion.",q5:"Collectez-vous mes données ?",a5:"Il n'y a pas de compte. Votre progression reste sur votre téléphone. Les publicités sont fournies par Google AdMob, comme expliqué dans notre politique de confidentialité.",
+betaEyebrow:"Accès anticipé",betaTitle:"Soyez parmi les premiers joueurs",betaLead:"Nous cherchons des testeurs Android avant le lancement. Envoyez-nous l'adresse Gmail que vous utilisez sur Google Play et nous vous inviterons.",betaBtn:"Nous écrire",privacy:"Politique de confidentialité",contact:"Contact"},
+ar:{navTry:"جرّبها",navFeatures:"المزايا",navFaq:"أسئلة",heroEyebrow:"لعبة ألغاز من آيات القرآن",heroTag:"كل حرف من حروف الآية مخفيّ خلف رقم. اكتشف الحروف واحدًا تلو الآخر لتظهر الآية كاملة بالعربية كما أُنزلت.",heroCta:"جرّب آية الآن",heroBeta:"كن من المختبرين",soonPlay:"قريبًا على",soonApple:"قريبًا على",
+demoEyebrow:"جرّبها هنا",demoTitle:"فكّ رمز آيتك الأولى",demoLead:"اضغط على مربّع فارغ، ثم على الحرف الذي تظنّه. الحرف الصحيح يملأ كل المربّعات التي تحمل الرقم نفسه. لديك ثلاثة قلوب.",demoRef:"سورة الإخلاص، الآية ١",demoAgain:"العب مجددًا",
+featEyebrow:"لماذا يحبّها اللاعبون",featTitle:"لعبة تقرّبك من القرآن",f1t:"نصّ القرآن الصحيح",f1p:"كل آية مأخوذة من النص العثماني الموثّق من موقع تنزيل، ولا تُترجم أبدًا. اقرأها كاملة عند حلّها.",f2t:"القرآن كاملًا",f2p:"ابدأ بآيات مشهورة، ثم تنقّل سورة بعد سورة عبر ٤٧١ مجموعة حتى تختم القرآن.",f3t:"آية اليوم",f3p:"آية جديدة كل يوم بنقاط مضاعفة، ومهام يومية، وسلسلة أيام تشجّعك على العودة.",f4t:"مساعدة لطيفة",f4p:"التلميح يكشف مربّعًا، والعدسة تُظهر أين يتكرّر الحرف. والوضع السهل يُعتّم الحروف التي وجدتها.",f5t:"أربعة مستويات تحدٍّ",f5p:"من «ميسّر» حيث تظهر حروف كثيرة، إلى «متقن» بلا أي حرف. المستوى الأصعب يمنح نجومًا ونقاطًا أكثر.",f6t:"احترام في كل تفصيل",f6p:"لا إعلان فوق أي آية، والإعلانات مناسبة للعائلة فقط، وشراء واحد يزيلها نهائيًا. تعمل دون إنترنت.",
+howEyebrow:"كيف تلعب",howTitle:"ثلاث خطوات لكل آية",s1t:"اقرأ الأرقام",s1p:"كل رقم يرمز إلى حرف عربي، والرقم نفسه هو دائمًا الحرف نفسه في الآية.",s2t:"اكتشف الحروف",s2p:"خمّن بلوحة المفاتيح الأبجدية، وكل حرف صحيح يظهر في الآية كلها.",s3t:"تظهر الآية",s3p:"تظهر الآية كاملة بخط المصحف مع نجومك ونقاطك وسلسلة أيامك.",
+allEyebrow:"لكل الأجيال",allTitle:"سهلة للأجداد، ممتعة للأحفاد",allLead:"جُرّبت رمز الآية مع لاعبين كبار في السن منذ البداية.",all1:"حروف كبيرة وحجم خط يصل إلى كبير جدًا",all2:"مفاتيح كبيرة وبطاقات يمكن الضغط عليها كاملة وأزرار «موافق» واضحة",all3:"أشكال حروف مبسّطة: اكتب ا لكل همزة إن شئت",all4:"الواجهة بالعربية والإنجليزية والفرنسية والملايوية والإندونيسية والتركية",
+galEyebrow:"داخل التطبيق",galTitle:"ألقِ نظرة",g1:"آية لفكّ رمزها",g2:"العدسة",g3:"الحرف الخاطئ يكلّفك قلبًا",g4:"رحلة القرآن",g5:"النجوم والنقاط",
+faqEyebrow:"أسئلة",faqTitle:"معلومات مفيدة",q1:"هل نص القرآن صحيح؟",a1:"نعم. الآيات مأخوذة من «تنزيل»، وهو مصدر موثّق واسع الاستخدام، ويراجعها أشخاص يعرفون القرآن جيدًا. النص عربي دائمًا ولا يُغيَّر؛ فقط تُخفى الحروف من أجل اللعبة.",q2:"هل اللعبة مجانية؟",a2:"نعم. اللعبة مجانية مع إعلانات بين الألغاز، ولا تظهر الإعلانات فوق أي آية. وشراء واحد «إزالة الإعلانات» يوقفها نهائيًا.",q3:"هل أحتاج إلى إتقان القراءة بالعربية؟",a3:"تكفي معرفة الحروف العربية. ابدأ بمستوى «ميسّر» حيث تظهر حروف كثيرة، واستعن بالتلميحات.",q4:"هل تعمل دون إنترنت؟",a4:"نعم. كل الآيات موجودة داخل التطبيق، والإعلانات فقط تحتاج إلى اتصال.",q5:"هل تجمعون بياناتي؟",a5:"لا يوجد حساب، وتقدّمك يبقى على هاتفك. الإعلانات تقدّمها Google AdMob كما هو موضّح في سياسة الخصوصية.",
+betaEyebrow:"وصول مبكر",betaTitle:"كن من أوائل اللاعبين",betaLead:"نبحث عن مختبرين على أندرويد قبل الإطلاق. أرسل لنا عنوان Gmail الذي تستخدمه على Google Play وسنرسل لك دعوة.",betaBtn:"راسلنا",privacy:"سياسة الخصوصية",contact:"تواصل معنا"}
+};
+document.querySelectorAll('[data-t]').forEach(function(el){T.en[el.dataset.t]=el.innerHTML});
+var lang='en';
+try{lang=localStorage.getItem('ac-lang')||''}catch(e){}
+if(!T[lang]){var n=(navigator.language||'en').slice(0,2);lang=T[n]?n:'en'}
+function setLang(l){
+  lang=l;
+  document.documentElement.lang=l;
+  document.documentElement.dir=l==='ar'?'rtl':'ltr';
+  document.querySelectorAll('[data-t]').forEach(function(el){var v=T[l][el.dataset.t]||T.en[el.dataset.t];if(v)el.innerHTML=v});
+  document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.lang===l)});
+  try{localStorage.setItem('ac-lang',l)}catch(e){}
+  render();
+}
+document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.lang)})});
+
+/* demo: قل هو الله احد */
+var words=[['ق','ل'],['ه','و'],['ا','ل','ل','ه'],['ا','ح','د']];
+var code={'ق':7,'ل':3,'ه':12,'و':5,'ا':1,'ح':9,'د':14};
+var given={'ه':true};
+var keys=['ا','ب','ح','د','ر','ق','ل','م','ن','ه','و','ي'];
+var M={en:{start:'Tap a box, then a letter.',good:'Well found!',bad:'Not this one. A heart is lost.',out:'No hearts left. Try again!',again:'Try again'},
+       fr:{start:'Touchez une case, puis une lettre.',good:'Bien trouvé !',bad:'Ce n’est pas celle-ci. Un cœur en moins.',out:'Plus de cœurs. Réessayez !',again:'Réessayer'},
+       ar:{start:'اضغط على مربّع ثم على حرف.',good:'أحسنت!',bad:'ليس هذا الحرف. خسرت قلبًا.',out:'نفدت القلوب. حاول مجددًا!',again:'حاول مجددًا'}};
+var found,hearts,sel,msgKey;
+function reset(){found=Object.assign({},given);hearts=3;sel=null;msgKey='start';pickNext();render();document.getElementById('reveal').classList.remove('show');document.getElementById('keys').hidden=false}
+function digits(n){return lang==='ar'?String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]}):String(n)}
+function pickNext(){sel=null;for(var w=0;w<words.length;w++)for(var i=0;i<words[w].length;i++){if(!found[words[w][i]]){sel=words[w][i];return}}}
+function render(){
+  if(found===undefined)return;
+  var v=document.getElementById('verse');v.innerHTML='';
+  words.forEach(function(w){var wd=document.createElement('div');wd.className='word';
+    w.forEach(function(ch){var b=document.createElement('button');b.type='button';
+      var isF=found[ch];b.className='slot'+(given[ch]?' given':isF?' found':'')+(sel===ch&&!isF?' sel':'');
+      b.innerHTML='<span class="box">'+(isF?ch:'')+'</span><span class="num">'+digits(code[ch])+'</span>';
+      b.setAttribute('aria-label',isF?ch:digits(code[ch]));
+      b.addEventListener('click',function(){if(!found[ch]&&hearts>0){sel=ch;render()}});
+      wd.appendChild(b)});
+    v.appendChild(wd)});
+  var k=document.getElementById('keys');k.innerHTML='';
+  keys.forEach(function(ch){var b=document.createElement('button');b.type='button';b.className='key'+(found[ch]?' used':'');b.textContent=ch;
+    b.addEventListener('click',function(){press(ch,b)});k.appendChild(b)});
+  var hs=document.querySelectorAll('#hearts span');hs.forEach(function(h,i){h.classList.toggle('lost',i>=hearts)});
+  document.getElementById('msg').textContent=M[lang][msgKey]||'';
+}
+function press(ch,btn){
+  if(hearts<=0||!sel)return;
+  if(ch===sel){found[ch]=true;msgKey='good';pickNext();render();
+    if(!sel){document.getElementById('keys').hidden=true;document.getElementById('msg').textContent='';document.getElementById('reveal').classList.add('show')}}
+  else{hearts--;msgKey=hearts>0?'bad':'out';render();var nb=[].find.call(document.querySelectorAll('.key'),function(x){return x.textContent===ch});
+    if(nb){nb.classList.add('miss')}
+    if(hearts<=0){setTimeout(reset,1800)}}
+}
+document.getElementById('again').addEventListener('click',reset);
+reset();
+setLang(lang);
+})();
+</script>
 </body>
 </html>
